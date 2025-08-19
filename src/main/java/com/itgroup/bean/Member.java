@@ -1,6 +1,6 @@
 package com.itgroup.bean;
 
-public class member {
+public class Member {
 
     private String id ;
     private String name ;
@@ -12,7 +12,7 @@ public class member {
     private String address ;
     private String manager ;
 
-    public member(String id, String name, String password, String gender, String birth, String marriage, int salary, String address, String manager) {
+    public Member(String id, String name, String password, String gender, String birth, String marriage, int salary, String address, String manager) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -22,6 +22,10 @@ public class member {
         this.salary = salary;
         this.address = address;
         this.manager = manager;
+    }
+
+    public Member() {
+
     }
 
     public String getId() {

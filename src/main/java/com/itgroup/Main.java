@@ -10,7 +10,7 @@ public class Main {
             MemberManager manager = new MemberManager();
 
             System.out.println("메뉴 선택");
-            System.out.println("0:종료, 1:목록 조회, 2:가입, 3:수정, 4:총 회원수, 5:탈퇴, 6:회원 정보, 7:xx, 8:xx");
+            System.out.println("0:종료, 1:목록 조회, 2:가입, 3:수정, 4:총 회원수, 5:탈퇴, 6:회원 정보, 7:성별, 8:상세보기 9:반대 이름순으로 출력하기");
 
             int menu = scan.nextInt(); // 선택한 메뉴
             switch (menu){
@@ -21,23 +21,32 @@ public class Main {
                     break;
                 case 1 :
                     manager.selectAll();
-                    System.exit(0);
+
                     break;
+
                 case 2 :
                     break;
                 case 3 :
                     break;
                 case 4 :
                     manager.getSize();
-                    System.exit(0);
                     break;
+
                 case 5 :
+                    manager.deleteData();
                     break;
                 case 6 :
                     break;
                 case 7 :
+                    manager.findByGender();
                     break;
+
                 case 8 :
+                    manager.getOne();
+                    break;
+
+                case 9 :
+                    manager.asc();
                     break;
             }
         }
