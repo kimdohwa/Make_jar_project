@@ -6,36 +6,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MemberDao {
+public class MemberDao extends SuperDao{
 
     public MemberDao() {
-        //해당 드라이버는 ojdbv6.jar 파일에 포함되어있는 자바클래스입니다.
-        String driver = "oracle.jdbc.driver.OracleDriver";
-        try {
-
-            Class.forName(driver); // 동적 객체를 생성하는 문법입니다.
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("해당 드라이버가 존재하지않습니다.");
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Connection getConnection() {
-        Connection conn = null; // 접속객체
-
-        String url = "jdbc:oracle:thin:@localhost:1521:xe";
-        String id = "oraman";
-        String password = "oracle";
-
-        try {
-            conn = DriverManager.getConnection(url, id, password);
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return conn;//= DriverManager.getConnection(url, id, password);
+        super(); //>수퍼의 생성자 호출 > 드라이버 호출
     }
 
     public int getSize() {//문장전달하기
@@ -48,7 +22,7 @@ public class MemberDao {
         int cnt = 0;
 
         try {
-            conn = this.getConnection();//1. 접속객체
+            conn = super.getConnection();//1. 접속객체
             pstmt = conn.prepareStatement(sql);// 2. 문장객체
             rs = pstmt.executeQuery(); //3. 결과객체
 
@@ -89,7 +63,7 @@ public class MemberDao {
         String sql = "select * from members order by name asc";
 
         try {
-            conn = this.getConnection();//접속객체 구하기
+            conn = super.getConnection();//접속객체 구하기
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery(); // (resultset)컴퓨터 메모리로 가지고옴
 
@@ -145,7 +119,7 @@ public class MemberDao {
         ResultSet rs = null;
 
         try {
-            conn = this.getConnection();
+            conn = super.getConnection();
             ps = conn.prepareStatement(sql);
             ps.setString(1, gender);
             rs = ps.executeQuery();
@@ -199,7 +173,7 @@ public class MemberDao {
         String sql = "select * from members where id = ? ";
 
         try {
-            conn = this.getConnection();
+            conn = super.getConnection();
             ps = conn.prepareStatement(sql);
             ps.setString(1, id); // -> 1번째 물음표를 id로 치환하세요
             rs = ps.executeQuery();
@@ -210,7 +184,7 @@ public class MemberDao {
                 one.setId(rs.getString("id"));
                 one.setName(rs.getString("name"));
                 one.setGender(rs.getString("gender"));
-                one.setBirth(rs.getString("birth"));
+                one.setBirth(String.valueOf(rs.getDate("birth")));
                 one.setMarriage(rs.getString("marriage"));
                 one.setSalary(rs.getInt("salary"));
                 one.setAddress(rs.getString("address"));
@@ -253,7 +227,7 @@ public class MemberDao {
         //메소드의 가장 바깥쪽에서 선언 > 다음에 finally로 닫아줘야하기 때문에
         //여러 행을 가져와야하기때문에 while 문장으로 실행
         try {
-            conn = this.getConnection();
+            conn = super.getConnection();
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
@@ -295,7 +269,7 @@ public class MemberDao {
 
     }
 
-    public int deleteData(String findId) {
+    public int deleteData(String findId) {//반환타입 int 객채생성 x
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -304,9 +278,9 @@ public class MemberDao {
         String sql = "delete from members where id = ?";
 
         try {
-            conn = this.getConnection();
+            conn = super.getConnection();
             ps = conn.prepareStatement(sql);
-            ps.setString(1, findId);
+            ps.setString(1, findId);// 열 1 번째에서 findId를 찾겠다.
             rs = ps.executeUpdate();
 
             conn.commit(); // 커밋
@@ -333,5 +307,93 @@ public class MemberDao {
 
             return rs;
         }
+    }
+
+    public int insertData(Member bean) {
+
+        int rs = -1 ;
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        String sql = "insert into members(id, name, password, gender, birth, marriage, salary, address, manager)";
+        sql += " values(?,?,?,?,?,?,?,?,?)"; // 정보 갯수만큼 ? 입력, 윗줄 괄호와 붙지않도록 첫번째 스페이스공간 확보
+
+        try {
+            conn = super.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1,bean.getId());
+            ps.setString(2,bean.getName());
+            ps.setString(3,bean.getPassword());
+            ps.setString(4,bean.getGender());
+            ps.setString(5,bean.getBirth());
+            ps.setString(6,bean.getMarriage());
+            ps.setInt(7,bean.getSalary());
+            ps.setString(8,bean.getAddress());
+            ps.setString(9,bean.getManager());
+            rs = ps.executeUpdate();
+
+
+            conn.commit();
+        }catch (Exception ex){
+            try {
+                conn.rollback();
+            }catch (Exception ex1){
+                ex1.printStackTrace();
+            }
+            ex.printStackTrace();
+        }finally {
+            try{
+                if (ps != null){ps.close();}
+                if (conn != null){conn.close();}
+
+            }catch (Exception ex2){
+                ex2.printStackTrace();
+            }
+        }
+
+        return rs;
+    }
+
+    public int upDate(Member bean) {
+
+        int rs = -1 ;
+        Connection conn = null ;
+        PreparedStatement ps = null ;
+
+        String sql = "update members set name = ?,password = ?,gender = ?,birth = ?,marriage = ?,salary = ?,address = ?,manager = ? ";
+        sql += "where id = ?";
+
+        try {
+            conn = super.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1,bean.getName());
+            ps.setString(2,bean.getPassword());
+            ps.setString(3,bean.getGender());
+            ps.setString(4,bean.getBirth());
+            ps.setString(5,bean.getMarriage());
+            ps.setInt(6,bean.getSalary());
+            ps.setString(7,bean.getAddress());
+            ps.setString(8,bean.getManager());
+            ps.setString(9,bean.getId());
+            rs = ps.executeUpdate();
+
+            conn.commit();
+        }catch (Exception ex){
+            ex.printStackTrace();
+            try {
+                conn.rollback();
+            }catch (Exception ex1){
+                ex1.printStackTrace();
+            }
+        }finally {
+            try {
+                if (ps != null){ps.close();}
+                if (conn != null){conn.close();}
+            }catch (Exception ex3){
+                ex3.printStackTrace();
+            }
+        }
+
+        return rs ;
     }
 }
